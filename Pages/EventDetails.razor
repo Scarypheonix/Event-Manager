@@ -1,0 +1,42 @@
+@page "/events/details/{id:int}"
+@using EventEase.Models
+@inject NavigationManager NavigationManager
+
+<h2>Event Details</h2>
+
+@if (selectedEvent == null)
+{
+    <div class="alert alert-danger">Event not found.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title">@selectedEvent.Name</h5>
+            <p><strong>Date:</strong> @selectedEvent.Date.ToString("MMMM dd, yyyy")</p>
+            <p><strong>Location:</strong> @selectedEvent.Location</p>
+            <p><strong>Description:</strong> This is a detailed description of the event.</p>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private Event? selectedEvent;
+
+    protected override void OnInitialized()
+    {
+        selectedEvent = MockEvents.FirstOrDefault(e => e.Id == id);
+
+        if (selectedEvent == null)
+        {
+            NavigationManager.NavigateTo("/notfound");
+        }
+    }
+
+    private List<Event> MockEvents => new()
+    {
+        new Event { Id = 1, Name = "Tech Conference", Date = DateTime.Today, Location = "New York" },
+        new Event { Id = 2, Name = "Marketing Summit", Date = DateTime.Today.AddDays(10), Location = "Chicago" }
+    };
+}

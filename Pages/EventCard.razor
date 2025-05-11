@@ -1,0 +1,23 @@
+@using EventEase.Models
+
+@if (EventData == null || string.IsNullOrWhiteSpace(EventData.Name))
+{
+    <div class="alert alert-warning">Invalid event data.</div>
+}
+else
+{
+    <div class="card shadow-sm mb-3">
+        <div class="card-body">
+            <h5 class="card-title">@EventData.Name</h5>
+            <p class="card-text mb-1"><strong>Date:</strong> @EventData.Date.ToString("MMMM dd, yyyy")</p>
+            <p class="card-text mb-2"><strong>Location:</strong> @EventData.Location</p>
+            <a class="btn btn-primary me-2" href="/events/details/@EventData.Id">Details</a>
+            <a class="btn btn-secondary" href="/events/register/@EventData.Id">Register</a>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Event? EventData { get; set; }
+}

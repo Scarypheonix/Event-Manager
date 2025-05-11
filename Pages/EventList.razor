@@ -1,0 +1,23 @@
+@page "/events"
+@using EventEase.Models
+
+<h2 class="mb-4">Upcoming Events</h2>
+
+<Virtualize Items="@events" Context="eventItem">
+    <EventCard EventData="eventItem" />
+</Virtualize>
+
+@code {
+    private List<Event> events = new();
+
+    protected override void OnInitialized()
+    {
+        events = Enumerable.Range(1, 1000).Select(i => new Event
+        {
+            Id = i,
+            Name = $"Event #{i}",
+            Date = DateTime.Today.AddDays(i),
+            Location = $"City #{i}"
+        }).ToList();
+    }
+}

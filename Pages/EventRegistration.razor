@@ -1,0 +1,92 @@
+@page "/events/register/{id:int}"
+@using EventEase.Models
+@inject NavigationManager NavigationManager
+@inject SessionService SessionService
+@inject AttendanceService AttendanceService
+
+<h2>Event Registration</h2>
+
+@if (selectedEvent == null)
+{
+    <div class="alert alert-danger">Event not found.</div>
+}
+else
+{
+    <EditForm Model="registration" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="fullName" class="form-label">Full Name</label>
+            <InputText id="fullName" class="form-control" @bind-Value="registration.FullName" />
+            <ValidationMessage For="@(() => registration.FullName)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <InputText id="email" class="form-control" @bind-Value="registration.Email" />
+            <ValidationMessage For="@(() => registration.Email)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="event" class="form-label">Event</label>
+            <InputSelect id="event" class="form-select" @bind-Value="registration.EventId">
+                <option value="">-- Select Event --</option>
+                @foreach (var eventItem in availableEvents)
+                {
+                    <option value="@eventItem.Id">@eventItem.Name</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => registration.EventId)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Register</button>
+    </EditForm>
+}
+
+@code {
+    [Parameter] public int id { get; set; }
+    private Event? selectedEvent;
+    private Registration registration = new();
+    private List<Event> availableEvents = new()
+    {
+        new Event { Id = 1, Name = "Tech Conference" },
+        new Event { Id = 2, Name = "Marketing Summit" }
+    };
+
+    protected override void OnInitialized()
+    {
+        selectedEvent = availableEvents.FirstOrDefault(e => e.Id == id);
+    }
+
+    private void HandleValidSubmit()
+    {
+        // Track attendance for the event
+        AttendanceService.AddAttendance(selectedEvent.Id, registration.FullName);
+        
+        // Set user session
+        SessionService.SetUser(registration.FullName);
+        SessionService.SetUserRegistered(true);
+        
+        // Simulate saving registration
+        Console.WriteLine($"User {registration.FullName} registered for {selectedEvent?.Name}");
+        
+        // Navigate to events page after registration
+        NavigationManager.NavigateTo("/events");
+    }
+
+    // The Registration class definition
+    public class Registration
+    {
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public int EventId { get; set; }
+    }
+
+    // The Event class (mock model for events)
+    public class Event
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}
